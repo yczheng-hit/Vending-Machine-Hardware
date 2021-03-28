@@ -7,12 +7,22 @@ module vendingMachine(
 	input [2:0] i_coin,
 	input [2:0] i_price,
 
+	output [1:0] o_num_10,  //最多俩一块
+	output o_num_5,         //5毛找零不是0就是1
+	output [2:0] o_num_1,   //0~4个1毛
 	output [4:0] o_price,
-	output reg [4:0] o_change, //找零
+	output [4:0] o_change, //找零
 	output [4:0] o_money, //已经投入
 	output reg o_ready,      //等待确认
 	output reg o_goods       //商品
 );
+reg [4:0]change;
+assign o_change = change;
+assign o_num_10 =   (change>=20)? 2:
+                    (change>=10)? 1:
+                    0;
+assign o_num_5 =    ((change>=25)||(change<20&&change>=15)||(change<10&&change>=5))? 1:0;
+assign o_num_1 =    change%5;
 
 wire [4:0] price = i_price[2]?5'd20:i_price[1]?5'd14:5'd10;
 assign o_price = price;
@@ -96,7 +106,7 @@ begin
     if(reset)
     begin
         money_clr = 0;
-        o_change <= 0;
+        change <= 0;
         o_goods <= 0;
         o_ready <= 0; 
     end     
@@ -104,48 +114,48 @@ begin
     case(curr_s)
         S0:
         begin
-            o_change <= 5'd0; 
+            change <= 5'd0; 
             o_goods <= 0; 
             o_ready <= 0; 
             money_clr <= 0;
         end
         S1: 
         begin
-			o_change <= 5'd0;
+			change <= 5'd0;
 			o_goods <= 0;
 			o_ready <= 0;
             money_clr <= 0;
         end
         S2:               
         begin             
-            o_change <= 5'd0;
+            change <= 5'd0;
 			o_goods <= 0;
 			o_ready <= 1;	//等待确认
             money_clr <= 0;
         end
         S3:               
         begin             
-            o_change <= money - price;  //计算余额
+            change <= money - price;  //计算余额
 			o_goods <= 1;	//购买成功
 			o_ready <= 0;
         end
         S4:               
         begin             
-            // o_change <= money - price;
+            // change <= money - price;
 			o_goods <= 0;	//购买成功
 			o_ready <= 0;
             money_clr <= 1;
         end
         S5:               
         begin             
-            o_change <= money;  //全额退款
+            change <= money;  //全额退款
 			o_goods <= 0;
 			o_ready <= 0;
             // money_clr <= 0;
         end
         default :
         begin 
-            o_change <= 5'd0; 
+            change <= 5'd0; 
 			o_goods <= 0;
 			o_ready <= 0; 
             money_clr <= 0;

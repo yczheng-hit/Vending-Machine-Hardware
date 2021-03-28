@@ -15,6 +15,7 @@ output [6:0] HEX6,
 output [6:0] HEX7
 
 );
+
 `define CNT_TEST
 
 // wire clk = CLOCK_27;
@@ -27,6 +28,11 @@ wire clk_1k;
 wire [4:0] o_price;
 wire [4:0] o_change;
 wire [4:0] o_money;
+
+wire [1:0] o_num_10;
+wire o_num_5;
+wire [2:0] o_num_1;
+
 // 贩卖机
 vendingMachine u_vendingMachine(
 	.clk       (clk_1k       ),
@@ -37,6 +43,9 @@ vendingMachine u_vendingMachine(
 	.i_coin    (SW[10:8]    ),
 	.i_price   (SW[2:0]   ),
 
+	.o_num_10  (o_num_10   ),
+	.o_num_5   (o_num_5   ),
+	.o_num_1   (o_num_1   ),
 	.o_price   (o_price   ),
 	.o_change  (o_change  ),
 	.o_money   (o_money   ),
@@ -69,11 +78,23 @@ display2 u1_display2(
 	.o_digital2 (HEX5 )
 );
 
-display2 u2_display2(
-	.i_data     (o_change     ),
-	.o_digital1 (HEX0 ),
-	.o_digital2 (HEX1 )
+display1 u0_display1(
+	.i_data     (o_num_10),
+	.o_digital (HEX2)
 );
+display1 u1_display1(
+	.i_data     (o_num_5),
+	.o_digital (HEX1)
+);
+display1 u2_display1(
+	.i_data     (o_num_1),
+	.o_digital (HEX0)
+);
+// display2 u2_display2(
+// 	.i_data     (o_change     ),
+// 	.o_digital1 (HEX0 ),
+// 	.o_digital2 (HEX1 )
+// );
 
 // test
 `ifdef CNT_TEST
@@ -112,7 +133,7 @@ u1_clk_div(
 	.clk_out (clk_1 )
 );
 
-display1 u0_display1(
+display1 utest_display1(
 	.i_data     (cnt),
 	.o_digital (HEX3)
 );
